@@ -17,6 +17,6 @@
 # vendor/
 
 .idea
-.iml
+*.iml
 
 kubectl-login
