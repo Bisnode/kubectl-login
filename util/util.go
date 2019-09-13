@@ -7,11 +7,14 @@ import (
 	"time"
 )
 
+// Issuer is the name / authorize endpoint mapping for our Common Login environments
 type Issuer struct {
 	Name              string
 	AuthorizeEndpoint string
 }
 
+// ExecCredentialObject - when run as a an exec credential plugin - which is the common mode of operation, the output
+// is printed to stdout and captured by kubectl who will know what to do with the token
 const ExecCredentialObject = `{
 	"apiVersion": "client.authentication.k8s.io/v1beta1",
 	"kind": "ExecCredential",
@@ -21,6 +24,7 @@ const ExecCredentialObject = `{
 	}
 }`
 
+// RandomString returns a semi-random string of variable length
 func RandomString(length int) string {
 	rand.Seed(time.Now().UnixNano())
 	chars := []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")
@@ -31,8 +35,8 @@ func RandomString(length int) string {
 	return b.String()
 }
 
-// Providing also the authorize URL instead of getting it from the discovery endpoint is a workaround since we can't
-// rely on PingFederate's authorize endpoint - instead we go straight to Curity
+// ClusterIssuer Providing also the authorize URL instead of getting it from the discovery endpoint is a workaround
+// since we can't rely on PingFederate's authorize endpoint - instead we go straight to Curity
 func ClusterIssuer(context string) Issuer {
 	clusterIssuers := map[string]Issuer{
 		"tr.k8s.dev.blue.bisnode.net": {
@@ -58,6 +62,7 @@ func ClusterIssuer(context string) Issuer {
 	return clusterIssuers["tr.k8s.dev.blue.bisnode.net"]
 }
 
+// ContextToEnv translates any known context to it's corresponding environment, or dev if not found
 func ContextToEnv(context string) (env string) {
 	ctxEnvMap := map[string]string{
 		"tr.k8s.dev.blue.bisnode.net":    "dev",

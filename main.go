@@ -172,7 +172,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	idTokenHandler := &handler.IdTokenWebhookHandler{
+	idTokenHandler := &handler.IDTokenWebhookHandler{
 		ClientCfg:          clientCfg,
 		ForceLogin:         forceLogin,
 		ExecCredentialMode: execCredentialMode,

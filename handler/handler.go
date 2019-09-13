@@ -11,7 +11,9 @@ import (
 	"time"
 )
 
-type IdTokenWebhookHandler struct {
+// IDTokenWebhookHandler carries configuration and any other state (like the nonce) between the main initialization and
+// the subsequent fetching of the ID token passed to the server after authenticating.
+type IDTokenWebhookHandler struct {
 	ClientCfg          *api.Config
 	ForceLogin         bool
 	ExecCredentialMode bool
@@ -19,6 +21,10 @@ type IdTokenWebhookHandler struct {
 	QuitChan           chan struct{}
 }
 
+// StdClaimsWithNonce - since all verification is done server side by the kubernetes API, all we are really interested
+// in here is that:
+// 1) the token is not expired or else we shouldn't store it and
+// 2) that the nonce in the ID token is the same as that provided in the authorization request
 type StdClaimsWithNonce struct {
 	Nonce string `json:"nonce"`
 	jwt.StandardClaims
@@ -31,7 +37,7 @@ func badRequest(w http.ResponseWriter, message string) {
 }
 
 // Extract ID token from form POST parameter and send 200 OK response
-func (h *IdTokenWebhookHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *IDTokenWebhookHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		log.Print(fmt.Fprintf(w, ""))

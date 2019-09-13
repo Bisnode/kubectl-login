@@ -49,7 +49,7 @@ func testRequest(method, target string, headers map[string]string, body io.Reade
 	req := httptest.NewRequest(method, target, body)
 	req.Header = normalizeHeaders(headers)
 	rr := httptest.NewRecorder()
-	s := IdTokenWebhookHandler{}
+	s := IDTokenWebhookHandler{}
 	s.ServeHTTP(rr, req)
 
 	return rr
