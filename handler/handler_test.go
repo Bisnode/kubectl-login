@@ -13,9 +13,8 @@ func TestHandlerReturns405OnGetRequest(t *testing.T) {
 		t.Errorf("Plain GET request should return 405 Method Not Allowed, got %v", rr.Code)
 	}
 
-	body := string(rr.Body.Bytes())
-	if body != "" {
-		t.Errorf("Plain GET request should return empty body, got %v", body)
+	if rr.Body.String() != "" {
+		t.Errorf("Plain GET request should return empty body, got %v", rr.Body.String())
 	}
 }
 
@@ -34,13 +33,11 @@ func TestHandlerReturns400OnPostWithNoOrWrongContentType(t *testing.T) {
 }
 
 // Since headers are 99% likely to be single occurrence/value we postpone
-// the standards ceremony until we pass them to the http module
+// the standards multi-value ceremony until we pass them to the http module
 func normalizeHeaders(headers map[string]string) map[string][]string {
 	target := make(map[string][]string)
-	if headers != nil {
-		for key, value := range headers {
-			target[key] = []string{value}
-		}
+	for key, value := range headers {
+		target[key] = []string{value}
 	}
 	return target
 }

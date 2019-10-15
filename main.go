@@ -154,7 +154,9 @@ func main() {
 
 	nonce := util.RandomString(12)
 	authorizeParameters := map[string]string{
-		"acr":           "urn:se:curity:authentication:html-form:ad",
+		// Don't send ACR for now as this has caused problems on the SAML (ADFS) side. It _should_ work, but for now
+		// just redirect straight to the ADFS authenticator instead.
+		// "acr":           "urn:se:curity:authentication:html-form:adfs",
 		"redirect_uri":  "http://localhost:16993/redirect",
 		"client_id":     "kubectl-login",
 		"response_type": "id_token",
