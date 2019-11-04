@@ -41,19 +41,19 @@ func ClusterIssuer(context string) Issuer {
 	clusterIssuers := map[string]Issuer{
 		"tr.k8s.dev.blue.bisnode.net": {
 			Name:              "https://dev-id.bisnode.com:9031",
-			AuthorizeEndpoint: "https://dev-login.bisnode.com/identityservice/internal/authn/authenticate/adfs",
+			AuthorizeEndpoint: "https://dev-login.bisnode.com/identityservice/internal/authn/authenticate",
 		},
 		"tr.k8s.qa.blue.bisnode.net": {
 			Name:              "https://qa-id.bisnode.com:9031",
-			AuthorizeEndpoint: "https://qa-login.bisnode.com/identityservice/internal/authn/authenticate/adfs",
+			AuthorizeEndpoint: "https://qa-login.bisnode.com/identityservice/internal/authn/authenticate",
 		},
 		"tr.k8s.stage.blue.bisnode.net": {
 			Name:              "https://stage-id.bisnode.com:9031",
-			AuthorizeEndpoint: "https://stage-login.bisnode.com/identityservice/internal/authn/authenticate/adfs",
+			AuthorizeEndpoint: "https://stage-login.bisnode.com/identityservice/internal/authn/authenticate",
 		},
 		"tr.k8s.prod.orange.bisnode.net": {
 			Name:              "https://id.bisnode.com:9031",
-			AuthorizeEndpoint: "https://login.bisnode.com/identityservice/internal/authn/authenticate/adfs",
+			AuthorizeEndpoint: "https://login.bisnode.com/identityservice/internal/authn/authenticate",
 		},
 	}
 	if val, ok := clusterIssuers[context]; ok {
@@ -75,4 +75,16 @@ func ContextToEnv(context string) (env string) {
 	}
 	log.Printf("Can't translate context '%v' to env (dev|qa|stage|prod), defaulting to 'dev'", context)
 	return "dev"
+}
+
+// Join with both prefix and suffix
+func Join(items []string, prefix, suffix string) string {
+	if len(items) == 1 {
+		return items[0]
+	}
+	joined := ""
+	for _, item := range items {
+		joined += prefix + item + suffix
+	}
+	return joined
 }

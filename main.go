@@ -31,6 +31,12 @@ const usageInstructions string = `Usage of kubectl login:
          Initialize kubeconf for provided environment (dev|qa|stage|prod) or "all" to initialize all environments
 `
 
+type IdentityClaims struct {
+	Username string    `json:"email"`
+	Groups   *[]string `json:"groups"`
+	jwt.StandardClaims
+}
+
 // Setup a 'clean' kubeconf file for the given environment
 func initKubeConfContext(env string, clientCfg *api.Config, setCurrentCtx bool) {
 	account := "blue"
@@ -69,6 +75,38 @@ func initKubeConfContext(env string, clientCfg *api.Config, setCurrentCtx bool) 
 	fmt.Printf("Stored initial %v configuration in %v\n", env, kubeconfFile)
 }
 
+// Print user info (name and group belongings)
+func whoami(rawToken string) string {
+	if rawToken == "" {
+		return "No token found in storage - make sure to first login"
+	}
+
+	parser := &jwt.Parser{}
+	claims := &IdentityClaims{}
+
+	_, _, err := parser.ParseUnverified(rawToken, claims)
+	if err != nil {
+		log.Fatalf("Failed parsing token: %v", rawToken)
+	}
+
+	var teams []string
+	for _, g := range *claims.Groups {
+		group := strings.ToLower(g)
+		if strings.HasPrefix(group, "sec-team-") {
+			teams = append(teams, strings.TrimLeft(group, "sec-"))
+		}
+	}
+
+	output := fmt.Sprintf("username: %v\n", claims.Username)
+	output += fmt.Sprintf("groups: [\n%v]\n", util.Join(*claims.Groups, "  ", ",\n"))
+
+	teamBelonging := fmt.Sprintf("Determined team belonging: %v", util.Join(teams, "", ", "))
+	output += fmt.Sprintf("%v\n", strings.Repeat("-", len(teamBelonging)))
+	output += teamBelonging
+
+	return output
+}
+
 func parseArgs(clientCfg *api.Config) (forceLogin bool, execCredentialMode bool) {
 	flag.Usage = func() {
 		_, _ = fmt.Fprint(os.Stderr, usageInstructions)
@@ -89,6 +127,11 @@ func parseArgs(clientCfg *api.Config) (forceLogin bool, execCredentialMode bool)
 		os.Exit(0)
 	}
 
+	if flag.NArg() > 0 && flag.Arg(0) == "whoami" {
+		fmt.Println(whoami(currentToken(clientCfg)))
+		os.Exit(0)
+	}
+
 	if flag.NArg() > 0 {
 		_, _ = fmt.Fprint(os.Stderr, fmt.Sprintf("Unrecognized parameter(s): %v\n", flag.Args()))
 		flag.Usage()
@@ -100,6 +143,15 @@ func parseArgs(clientCfg *api.Config) (forceLogin bool, execCredentialMode bool)
 
 func startServer(server *http.Server) {
 	_ = server.ListenAndServe()
+}
+
+func currentToken(clientCfg *api.Config) string {
+	if clientCfg.CurrentContext == "" {
+		fmt.Println("No current-context set - run 'kubectl login --init' to initialize context")
+		os.Exit(1)
+	}
+
+	return clientCfg.AuthInfos[clientCfg.CurrentContext].Token
 }
 
 func main() {
@@ -116,12 +168,7 @@ func main() {
 	}
 	forceLogin, execCredentialMode := parseArgs(clientCfg)
 
-	if clientCfg.CurrentContext == "" {
-		fmt.Println("No current-context set - run 'kubectl login --init' to initialize context")
-		os.Exit(1)
-	}
-
-	currentToken := clientCfg.AuthInfos[clientCfg.CurrentContext].Token
+	currentToken := currentToken(clientCfg)
 	if currentToken != "" && !forceLogin {
 		// We are only really interested in the expiry claim - all verification will be done by the kubernetes API
 		parser := jwt.Parser{SkipClaimsValidation: true}
@@ -157,7 +204,7 @@ func main() {
 		// Don't send ACR for now as this has caused problems on the SAML (ADFS) side. It _should_ work, but for now
 		// just redirect straight to the ADFS authenticator instead.
 		// "acr":           "urn:se:curity:authentication:html-form:adfs",
-		"redirect_uri":  "http://localhost:16993/redirect",
+		"redirect_uri":  "http://127.0.0.1:16993/redirect",
 		"client_id":     "kubectl-login",
 		"response_type": "id_token",
 		"response_mode": "form_post",
@@ -169,6 +216,10 @@ func main() {
 		authorizeRequestURL += k + "=" + v + "&"
 	}
 	authorizeRequestURL = strings.TrimRight(authorizeRequestURL, "&")
+	// To test in a specific browser, run like:
+	// err = open.RunWith(authorizeRequestURL, "Google Chrome")
+	// err = open.RunWith(authorizeRequestURL, "Safari")
+	// .. Safari works but shows a "non-secure form submission" warning
 	err = open.Run(authorizeRequestURL)
 	if err != nil {
 		log.Fatal(err)
