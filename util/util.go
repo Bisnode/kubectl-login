@@ -40,20 +40,20 @@ func RandomString(length int) string {
 func ClusterIssuer(context string) Issuer {
 	clusterIssuers := map[string]Issuer{
 		"tr.k8s.dev.blue.bisnode.net": {
-			Name:              "https://dev-id.bisnode.com:9031",
-			AuthorizeEndpoint: "https://dev-login.bisnode.com/identityservice/internal/authn/authenticate",
+			Name:              "https://dev-login.bisnode.com",
+			AuthorizeEndpoint: "https://dev-login.bisnode.com/as/authorization.oauth2",
 		},
 		"tr.k8s.qa.blue.bisnode.net": {
-			Name:              "https://qa-id.bisnode.com:9031",
-			AuthorizeEndpoint: "https://qa-login.bisnode.com/identityservice/internal/authn/authenticate",
+			Name:              "https://qa-login.bisnode.com",
+			AuthorizeEndpoint: "https://qa-login.bisnode.com/as/authorization.oauth2",
 		},
 		"tr.k8s.stage.blue.bisnode.net": {
-			Name:              "https://stage-id.bisnode.com:9031",
-			AuthorizeEndpoint: "https://stage-login.bisnode.com/identityservice/internal/authn/authenticate",
+			Name:              "https://stage-login.bisnode.com",
+			AuthorizeEndpoint: "https://stage-login.bisnode.com/as/authorization.oauth2",
 		},
 		"tr.k8s.prod.orange.bisnode.net": {
-			Name:              "https://id.bisnode.com:9031",
-			AuthorizeEndpoint: "https://login.bisnode.com/identityservice/internal/authn/authenticate",
+			Name:              "https://login.bisnode.com",
+			AuthorizeEndpoint: "https://login.bisnode.com/as/authorization.oauth2",
 		},
 	}
 	if val, ok := clusterIssuers[context]; ok {
