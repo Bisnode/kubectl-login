@@ -216,11 +216,15 @@ func main() {
 		authorizeRequestURL += k + "=" + v + "&"
 	}
 	authorizeRequestURL = strings.TrimRight(authorizeRequestURL, "&")
-	// To test in a specific browser, run like:
-	// err = open.RunWith(authorizeRequestURL, "Google Chrome")
-	// err = open.RunWith(authorizeRequestURL, "Safari")
-	// .. Safari works but shows a "non-secure form submission" warning
-	err = open.Run(authorizeRequestURL)
+
+	preferredBrowser := os.Getenv("KUBECTL_LOGIN_BROWSER")
+	if preferredBrowser == "" {
+		// Open with system browser
+		err = open.Run(authorizeRequestURL)
+	} else {
+		// Note case sensitivity - "Google Chrome", "Safari", etc
+		err = open.RunWith(authorizeRequestURL, preferredBrowser)
+	}
 	if err != nil {
 		log.Fatal(err)
 	}

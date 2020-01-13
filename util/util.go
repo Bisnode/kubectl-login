@@ -35,8 +35,6 @@ func RandomString(length int) string {
 	return b.String()
 }
 
-// ClusterIssuer Providing also the authorize URL instead of getting it from the discovery endpoint is a workaround
-// since we can't rely on PingFederate's authorize endpoint - instead we go straight to Curity
 func ClusterIssuer(context string) Issuer {
 	clusterIssuers := map[string]Issuer{
 		"tr.k8s.dev.blue.bisnode.net": {
@@ -65,6 +63,8 @@ func ClusterIssuer(context string) Issuer {
 // ContextToEnv translates any known context to it's corresponding environment, or dev if not found
 func ContextToEnv(context string) (env string) {
 	ctxEnvMap := map[string]string{
+		"tr.k8s.lab.blue.bisnode.net":    "lab",
+		"tr2.k8s.lab.blue.bisnode.net":   "lab2",
 		"tr.k8s.dev.blue.bisnode.net":    "dev",
 		"tr.k8s.qa.blue.bisnode.net":     "qa",
 		"tr.k8s.stage.blue.bisnode.net":  "stage",
