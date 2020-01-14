@@ -1,6 +1,8 @@
 package util
 
 import (
+	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/tools/clientcmd/api"
 	"log"
 	"math/rand"
 	"strings"
@@ -75,6 +77,15 @@ func ContextToEnv(context string) (env string) {
 	}
 	log.Printf("Can't translate context '%v' to env (dev|qa|stage|prod), defaulting to 'dev'", context)
 	return "dev"
+}
+
+func LoadConfigFromContext(context string) *api.Config {
+	file := clientcmd.RecommendedHomeFile + "." + ContextToEnv(context)
+	conf, err := clientcmd.LoadFromFile(file)
+	if err != nil {
+		log.Fatalf("Failed reading file %v", file)
+	}
+	return conf
 }
 
 // Join with both prefix and suffix

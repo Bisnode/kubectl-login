@@ -86,12 +86,11 @@ func (h *IDTokenWebhookHandler) ServeHTTP(w http.ResponseWriter, r *http.Request
 
 	// Store in kubeconf regardless of mode
 	currentCtx := h.ClientCfg.CurrentContext
+
 	file := clientcmd.RecommendedHomeFile + "." + util.ContextToEnv(currentCtx)
-	fileConf, err := clientcmd.LoadFromFile(file)
-	if err != nil {
-		log.Fatalf("Failed reading file %v", file)
-	}
+	fileConf := util.LoadConfigFromContext(currentCtx)
 	fileConf.AuthInfos[currentCtx].Token = token.Raw
+
 	err = clientcmd.WriteToFile(*fileConf, file)
 	if err != nil {
 		log.Fatalf("Failed writing token to file %v", file)

@@ -29,6 +29,8 @@ const usageInstructions string = `Usage of kubectl login:
          Force re-authentication even if a valid token is present in config
   --init string
          Initialize kubeconf for provided environment (dev|qa|stage|prod) or "all" to initialize all environments
+  whoami
+		 Print details of the current authenticated user (like group membership)
 `
 
 type IdentityClaims struct {
@@ -50,7 +52,7 @@ func initKubeConfContext(env string, clientCfg *api.Config, setCurrentCtx bool) 
 	userConf := &api.AuthInfo{
 		Exec: &api.ExecConfig{
 			Command:    "kubectl-login",
-			Args:       []string{"--print"},
+			Args:       []string{"--print", "--context=" + ctx},
 			APIVersion: "client.authentication.k8s.io/v1beta1",
 		},
 	}
@@ -107,11 +109,12 @@ func whoami(rawToken string) string {
 	return output
 }
 
-func parseArgs(clientCfg *api.Config) (forceLogin bool, execCredentialMode bool) {
+func parseArgs(clientCfg *api.Config) (forceLogin bool, execCredentialMode bool, ctx string) {
 	flag.Usage = func() {
 		_, _ = fmt.Fprint(os.Stderr, usageInstructions)
 	}
 	init := flag.String("init", "", "")
+	flag.StringVar(&ctx, "context", "", "")
 	flag.BoolVar(&forceLogin, "force", false, "")
 	flag.BoolVar(&execCredentialMode, "print", false, "")
 	flag.Parse()
@@ -138,7 +141,7 @@ func parseArgs(clientCfg *api.Config) (forceLogin bool, execCredentialMode bool)
 		os.Exit(1)
 	}
 
-	return forceLogin, execCredentialMode
+	return forceLogin, execCredentialMode, ctx
 }
 
 func startServer(server *http.Server) {
@@ -166,7 +169,15 @@ func main() {
 	if err != nil {
 		log.Fatal("Failed to get default config")
 	}
-	forceLogin, execCredentialMode := parseArgs(clientCfg)
+	forceLogin, execCredentialMode, execCredentialCtx := parseArgs(clientCfg)
+
+	// Special handling of "execCredentialContext" - this is basically hit when doing
+	// kubectl get whatever --context=some-context
+	// where "some-context" is not the _current context_.
+	if execCredentialMode && execCredentialCtx != clientCfg.CurrentContext {
+		clientCfg = util.LoadConfigFromContext(execCredentialCtx)
+		clientCfg.CurrentContext = execCredentialCtx
+	}
 
 	currentToken := currentToken(clientCfg)
 	if currentToken != "" && !forceLogin {
