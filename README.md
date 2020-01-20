@@ -54,7 +54,7 @@ to login again.
 
 **Prerequisites:** any semi-recent version of Go.
 
-    git clone ssh://git@buildtools.bisnode.com:7999/bcmn/kubectl-login.git
+    git clone git@github.com:Bisnode/kubectl-login.git
     cd kubectl-login
     export $GO111MODULE=auto # If not set already
     go build
