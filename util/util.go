@@ -1,6 +1,8 @@
 package util
 
 import (
+	"fmt"
+	"github.com/dgrijalva/jwt-go"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/clientcmd/api"
 	"log"
@@ -15,6 +17,12 @@ type Issuer struct {
 	AuthorizeEndpoint string
 }
 
+type IdentityClaims struct {
+	Username string    `json:"email"`
+	Groups   *[]string `json:"groups"`
+	jwt.StandardClaims
+}
+
 // ExecCredentialObject - when run as a an exec credential plugin - which is the common mode of operation, the output
 // is printed to stdout and captured by kubectl who will know what to do with the token
 const ExecCredentialObject = `{
@@ -25,6 +33,38 @@ const ExecCredentialObject = `{
 		"expirationTimestamp": "%v"
 	}
 }`
+
+// Retrieve user info (name and group belongings) from stored token
+func Whoami(rawToken string) string {
+	if rawToken == "" {
+		return "No token found in storage - make sure to first login"
+	}
+
+	parser := &jwt.Parser{}
+	claims := &IdentityClaims{}
+
+	_, _, err := parser.ParseUnverified(rawToken, claims)
+	if err != nil {
+		log.Fatalf("Failed parsing token: %v", rawToken)
+	}
+
+	var teams []string
+	for _, g := range *claims.Groups {
+		group := strings.ToLower(g)
+		if strings.HasPrefix(group, "sec-team-") {
+			teams = append(teams, strings.TrimLeft(group, "sec-"))
+		}
+	}
+
+	output := fmt.Sprintf("username: %v\n", claims.Username)
+	output += fmt.Sprintf("groups: [\n%v]\n", Join(*claims.Groups, "  ", ",\n"))
+
+	teamBelonging := fmt.Sprintf("Determined team belonging: %v", Join(teams, "", ", "))
+	output += fmt.Sprintf("%v\n", strings.Repeat("-", len(teamBelonging)))
+	output += teamBelonging
+
+	return output
+}
 
 // RandomString returns a semi-random string of variable length
 func RandomString(length int) string {

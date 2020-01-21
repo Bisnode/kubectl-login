@@ -33,12 +33,6 @@ const usageInstructions string = `Usage of kubectl login:
 		 Print details of the current authenticated user (like group membership)
 `
 
-type IdentityClaims struct {
-	Username string    `json:"email"`
-	Groups   *[]string `json:"groups"`
-	jwt.StandardClaims
-}
-
 // Setup a 'clean' kubeconf file for the given environment
 func initKubeConfContext(env string, clientCfg *api.Config, setCurrentCtx bool) {
 	account := "blue"
@@ -77,38 +71,6 @@ func initKubeConfContext(env string, clientCfg *api.Config, setCurrentCtx bool) 
 	fmt.Printf("Stored initial %v configuration in %v\n", env, kubeconfFile)
 }
 
-// Print user info (name and group belongings)
-func whoami(rawToken string) string {
-	if rawToken == "" {
-		return "No token found in storage - make sure to first login"
-	}
-
-	parser := &jwt.Parser{}
-	claims := &IdentityClaims{}
-
-	_, _, err := parser.ParseUnverified(rawToken, claims)
-	if err != nil {
-		log.Fatalf("Failed parsing token: %v", rawToken)
-	}
-
-	var teams []string
-	for _, g := range *claims.Groups {
-		group := strings.ToLower(g)
-		if strings.HasPrefix(group, "sec-team-") {
-			teams = append(teams, strings.TrimLeft(group, "sec-"))
-		}
-	}
-
-	output := fmt.Sprintf("username: %v\n", claims.Username)
-	output += fmt.Sprintf("groups: [\n%v]\n", util.Join(*claims.Groups, "  ", ",\n"))
-
-	teamBelonging := fmt.Sprintf("Determined team belonging: %v", util.Join(teams, "", ", "))
-	output += fmt.Sprintf("%v\n", strings.Repeat("-", len(teamBelonging)))
-	output += teamBelonging
-
-	return output
-}
-
 func parseArgs(clientCfg *api.Config) (forceLogin bool, execCredentialMode bool, ctx string) {
 	flag.Usage = func() {
 		_, _ = fmt.Fprint(os.Stderr, usageInstructions)
@@ -131,7 +93,7 @@ func parseArgs(clientCfg *api.Config) (forceLogin bool, execCredentialMode bool,
 	}
 
 	if flag.NArg() > 0 && flag.Arg(0) == "whoami" {
-		fmt.Println(whoami(currentToken(clientCfg)))
+		fmt.Println(util.Whoami(currentToken(clientCfg)))
 		os.Exit(0)
 	}
 
