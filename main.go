@@ -1,8 +1,5 @@
 package main
 
-// TODO: Known problems and bugs:
-// TODO: 1. Setting current-context only works every other time - need to take into account all files read
-
 import (
 	"context"
 	"flag"
@@ -24,6 +21,8 @@ import (
 	"time"
 )
 
+const version = "1.0.0"
+
 const usageInstructions string = `Usage of kubectl login:
   --force
          Force re-authentication even if a valid token is present in config
@@ -31,6 +30,8 @@ const usageInstructions string = `Usage of kubectl login:
          Initialize kubeconf for provided environment (dev|qa|stage|prod) or "all" to initialize all environments
   whoami
 		 Print details of the current authenticated user (like group membership)
+  version
+		 Print current version and exit
 `
 
 // Setup a 'clean' kubeconf file for the given environment
@@ -80,6 +81,11 @@ func parseArgs(clientCfg *api.Config) (forceLogin bool, execCredentialMode bool,
 	flag.BoolVar(&forceLogin, "force", false, "")
 	flag.BoolVar(&execCredentialMode, "print", false, "")
 	flag.Parse()
+
+	if flag.NArg() > 0 && flag.Arg(0) == "version" {
+		fmt.Println(version)
+		os.Exit(0)
+	}
 
 	if *init != "" {
 		if *init != "all" {
