@@ -6,9 +6,39 @@ jobs:
     name: Build plugin
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
-      - uses: actions/setup-go@v1
+      - name: Checkout source
+        uses: actions/checkout@master
+      - name: Setup Go
+        uses: actions/setup-go@v1
         with:
           go-version: '1.13.5'
-      - run: go build
-
+      - name: Build Linux binary
+        run: go build -o dist/linux/amd64/kubectl-login
+        env:
+          GOOS: linux
+          GOARCH: amd64
+      - name: Build Mac OS binary
+        run: go build -o dist/darwin/amd64/kubectl-login
+        env:
+          GOOS: darwin
+          GOARCH: amd64
+      - name: Build Windows binary
+        run: go build -o dist/windows/amd64/kubectl-login.exe
+        env:
+          GOOS: windows
+          GOARCH: amd64
+      - name: Upload kubectl-login Linux binary
+        uses: actions/upload-artifact@v1
+        with:
+          name: kubectl-login-linux
+          path: dist/linux/amd64/kubectl-login
+      - name: Upload kubectl-login Mac OS binary
+        uses: actions/upload-artifact@v1
+        with:
+          name: kubectl-login-macos
+          path: dist/darwin/amd64/kubectl-login
+      - name: Upload kubectl-login Windows binary
+        uses: actions/upload-artifact@v1
+        with:
+          name: kubectl-login-windows
+          path: dist/windows/amd64/kubectl-login.exe
