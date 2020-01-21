@@ -1,4 +1,5 @@
 # kubectl-login
+![](https://github.com/Bisnode/kubectl-login/workflows/build/badge.svg)
 
 OpenID Connect (OIDC) authentication plugin for kubectl. Built specifically for requirements at Bisnode, but given some 
 minor modification most likely useful in other contexts too.
