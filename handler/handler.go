@@ -2,13 +2,14 @@ package handler
 
 import (
 	"fmt"
+	"log"
+	"net/http"
+	"time"
+
 	"github.com/Bisnode/kubectl-login/util"
 	"github.com/dgrijalva/jwt-go"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/clientcmd/api"
-	"log"
-	"net/http"
-	"time"
 )
 
 // IDTokenWebhookHandler carries configuration and any other state (like the nonce) between the main initialization and
@@ -33,10 +34,10 @@ type StdClaimsWithNonce struct {
 func badRequest(w http.ResponseWriter, message string) {
 	log.Println(message)
 	w.WriteHeader(http.StatusBadRequest)
-	log.Print(fmt.Fprintf(w, message))
+	log.Print(fmt.Fprintf(w, message)) //nolint
 }
 
-// Extract ID token from form POST parameter and send 200 OK response
+// Extract ID token from form POST parameter, store it in kubeconf, send 200 OK response and then exit
 func (h *IDTokenWebhookHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		w.WriteHeader(http.StatusMethodNotAllowed)
@@ -87,10 +88,10 @@ func (h *IDTokenWebhookHandler) ServeHTTP(w http.ResponseWriter, r *http.Request
 	// Store in kubeconf regardless of mode
 	currentCtx := h.ClientCfg.CurrentContext
 
-	file := clientcmd.RecommendedHomeFile + "." + util.ContextToEnv(currentCtx)
 	fileConf := util.LoadConfigFromContext(currentCtx)
 	fileConf.AuthInfos[currentCtx].Token = token.Raw
 
+	file := clientcmd.RecommendedHomeFile + "." + util.ContextToEnv(currentCtx)
 	err = clientcmd.WriteToFile(*fileConf, file)
 	if err != nil {
 		log.Fatalf("Failed writing token to file %v", file)
