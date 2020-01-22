@@ -99,7 +99,13 @@ func parseArgs(clientCfg *api.Config) (forceLogin bool, execCredentialMode bool,
 	}
 
 	if flag.NArg() > 0 && flag.Arg(0) == "whoami" {
-		fmt.Println(util.Whoami(currentToken(clientCfg)))
+		rawToken := currentToken(clientCfg)
+		if rawToken == "" {
+			fmt.Println("No token found in storage - make sure to first login")
+			os.Exit(1)
+		}
+		claims := util.JwtToIdentityClaims(rawToken)
+		fmt.Println(util.Whoami(claims.Username, *claims.Groups, util.ExtractTeams(claims)))
 		os.Exit(0)
 	}
 

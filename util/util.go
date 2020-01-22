@@ -34,36 +34,38 @@ const ExecCredentialObject = `{
 	}
 }`
 
-// Retrieve user info (name and group belongings) from stored token
-func Whoami(rawToken string) string {
-	if rawToken == "" {
-		return "No token found in storage - make sure to first login"
-	}
-
-	parser := &jwt.Parser{}
-	claims := &IdentityClaims{}
-
-	_, _, err := parser.ParseUnverified(rawToken, claims)
-	if err != nil {
-		log.Fatalf("Failed parsing token: %v", rawToken)
-	}
-
-	var teams []string
+func ExtractTeams(claims *IdentityClaims) (teams []string) {
 	for _, g := range *claims.Groups {
 		group := strings.ToLower(g)
-		if strings.HasPrefix(group, "sec-team-") {
-			teams = append(teams, strings.TrimLeft(group, "sec-"))
+		if strings.HasPrefix(group, "sec-tbac-team-") {
+			teams = append(teams, strings.TrimPrefix(group, "sec-tbac-"))
 		}
 	}
+	return teams
+}
 
-	output := fmt.Sprintf("username: %v\n", claims.Username)
-	output += fmt.Sprintf("groups: [\n%v]\n", Join(*claims.Groups, "  ", ",\n"))
+func Whoami(user string, groups []string, teams []string) string {
+	output := fmt.Sprintf("username: %v\n", user)
+	output += fmt.Sprintf("groups: [\n%v]\n", Join(groups, "  ", ",\n"))
 
 	teamBelonging := fmt.Sprintf("Determined team belonging: %v", Join(teams, "", ", "))
 	output += fmt.Sprintf("%v\n", strings.Repeat("-", len(teamBelonging)))
 	output += teamBelonging
 
 	return output
+}
+
+// Retrieve user info (name and group belongings) from stored token
+func JwtToIdentityClaims(rawToken string) *IdentityClaims {
+	parser := &jwt.Parser{}
+	claims := &IdentityClaims{}
+
+	_, _, err := parser.ParseUnverified(rawToken, claims)
+	if err != nil {
+		log.Fatalf("Failed parsing token: %v, error: %v", rawToken, err)
+	}
+
+	return claims
 }
 
 // RandomString returns a semi-random string of variable length
