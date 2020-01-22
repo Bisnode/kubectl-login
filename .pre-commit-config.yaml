@@ -7,7 +7,6 @@
     - id: go-imports
     - id: validate-toml
     - id: no-go-testing
-    - id: gometalinter
     - id: golangci-lint
     - id: go-critic
     - id: go-unit-tests
