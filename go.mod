@@ -31,4 +31,5 @@ require (
 	k8s.io/client-go v11.0.0+incompatible
 	k8s.io/klog v1.0.0 // indirect
 	k8s.io/utils v0.0.0-20200108110541-e2fb8e668047 // indirect
+	sigs.k8s.io/yaml v1.1.0 // indirect
 )
