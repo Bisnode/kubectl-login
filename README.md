@@ -7,8 +7,11 @@ minor modification most likely useful in other contexts too.
 Notable differences compared to the commonly found OIDC authentication plugins for kubectl:
 
 - Does not make use of the OAuth2/OIDC code flow, and hence does not try to refresh issued ID tokens. Since the 
-  application is distributed among a large group of developers, attempting to keep secrets inside of the app is 
-  superficial.
+  application is distributed among a large group of developers, attempting to keep secrets inside of the app is not
+  meaningful.
+- The OpenID Connect specification does not require the ID token to be part of the 
+  [refresh token response](https://openid.net/specs/openid-connect-core-1_0.html#RefreshTokenResponse), and in fact in
+  many implementations isn't.
 - Instead opts for the simpler implicit flow, using the OIDC specific `form_post` response mode to transfer the issued 
   ID token to the kubectl client plugin. Since all access to the kubernetes API is expected to be restricted to internal
   clients (through network policies and whatnot), 
