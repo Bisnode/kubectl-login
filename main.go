@@ -4,12 +4,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/Bisnode/kubectl-login/handler"
-	"github.com/Bisnode/kubectl-login/util"
-	"github.com/dgrijalva/jwt-go"
-	"github.com/skratchdot/open-golang/open"
-	"k8s.io/client-go/tools/clientcmd"
-	"k8s.io/client-go/tools/clientcmd/api"
 	"log"
 	"net"
 	"net/http"
@@ -19,6 +13,13 @@ import (
 	"strings"
 	"syscall"
 	"time"
+
+	"github.com/Bisnode/kubectl-login/handler"
+	"github.com/Bisnode/kubectl-login/util"
+	"github.com/dgrijalva/jwt-go"
+	"github.com/skratchdot/open-golang/open"
+	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/tools/clientcmd/api"
 )
 
 const version = "1.0.0"
@@ -127,8 +128,8 @@ func currentToken(clientCfg *api.Config) string {
 		fmt.Println("No current-context set - run 'kubectl login --init' to initialize context")
 		os.Exit(1)
 	}
-
-	return clientCfg.AuthInfos[clientCfg.CurrentContext].Token
+	// Note that absence of a token is not an error here but an empty string is returned
+	return util.ReadToken(clientCfg.CurrentContext)
 }
 
 func main() {
