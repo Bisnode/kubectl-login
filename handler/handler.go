@@ -8,7 +8,6 @@ import (
 
 	"github.com/Bisnode/kubectl-login/util"
 	"github.com/dgrijalva/jwt-go"
-	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/clientcmd/api"
 )
 
@@ -85,20 +84,14 @@ func (h *IDTokenWebhookHandler) ServeHTTP(w http.ResponseWriter, r *http.Request
 		fmt.Println(fmt.Sprintf(util.ExecCredentialObject, token.Raw, exp.Format(time.RFC3339)))
 	}
 
-	// Store in kubeconf regardless of mode
-	currentCtx := h.ClientCfg.CurrentContext
-
-	fileConf := util.LoadConfigFromContext(currentCtx)
-	fileConf.AuthInfos[currentCtx].Token = token.Raw
-
-	file := clientcmd.RecommendedHomeFile + "." + util.ContextToEnv(currentCtx)
-	err = clientcmd.WriteToFile(*fileConf, file)
+	err = util.WriteToken(token.Raw, h.ClientCfg.CurrentContext)
 	if err != nil {
-		log.Fatalf("Failed writing token to file %v", file)
+		fmt.Println(err)
 	}
 
 	if !h.ExecCredentialMode {
-		fmt.Println(fmt.Sprintf("Authenticated for context %v. Token valid until %v.", currentCtx, exp))
+		fmt.Println(fmt.Sprintf(
+			"Authenticated for context %v. Token valid until %v.", h.ClientCfg.CurrentContext, exp))
 	}
 
 	// Return control to shell at this point

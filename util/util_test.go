@@ -2,9 +2,10 @@ package util
 
 import (
 	"fmt"
-	"github.com/dgrijalva/jwt-go"
 	"reflect"
 	"testing"
+
+	"github.com/dgrijalva/jwt-go"
 )
 
 func TestExtractsSingleTeamFromListOfGroups(t *testing.T) {

@@ -2,13 +2,17 @@ package util
 
 import (
 	"fmt"
+	"io/ioutil"
+	"log"
+	"math/rand"
+	"os"
+	"path/filepath"
+	"strings"
+	"time"
+
 	"github.com/dgrijalva/jwt-go"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/clientcmd/api"
-	"log"
-	"math/rand"
-	"strings"
-	"time"
 )
 
 // Issuer is the name / authorize endpoint mapping for our Common Login environments
@@ -17,6 +21,7 @@ type Issuer struct {
 	AuthorizeEndpoint string
 }
 
+// IdentityClaims - token claims of interest for our use case
 type IdentityClaims struct {
 	Username string    `json:"email"`
 	Groups   *[]string `json:"groups"`
@@ -34,6 +39,11 @@ const ExecCredentialObject = `{
 	}
 }`
 
+var (
+	configDir = filepath.Join(clientcmd.RecommendedConfigDir, "kubectl-login")
+)
+
+// ExtractTeams returns all teams from groups as found in ID token
 func ExtractTeams(claims *IdentityClaims) (teams []string) {
 	for _, g := range *claims.Groups {
 		group := strings.ToLower(g)
@@ -44,6 +54,7 @@ func ExtractTeams(claims *IdentityClaims) (teams []string) {
 	return teams
 }
 
+// Whoami prints username, groups and team membership
 func Whoami(user string, groups []string, teams []string) string {
 	output := fmt.Sprintf("username: %v\n", user)
 	output += fmt.Sprintf("groups: [\n%v]\n", Join(groups, "  ", ",\n"))
@@ -55,7 +66,7 @@ func Whoami(user string, groups []string, teams []string) string {
 	return output
 }
 
-// Retrieve user info (name and group belongings) from stored token
+// JwtToIdentityClaims retrieves user info (name and group belongings) from stored token
 func JwtToIdentityClaims(rawToken string) *IdentityClaims {
 	parser := &jwt.Parser{}
 	claims := &IdentityClaims{}
@@ -79,6 +90,7 @@ func RandomString(length int) string {
 	return b.String()
 }
 
+// ClusterIssuer provides relevant issuer details given a context
 func ClusterIssuer(context string) Issuer {
 	clusterIssuers := map[string]Issuer{
 		"tr.k8s.dev.blue.bisnode.net": {
@@ -121,6 +133,7 @@ func ContextToEnv(context string) (env string) {
 	return "dev"
 }
 
+// LoadConfigFromContext loads config object for provided context
 func LoadConfigFromContext(context string) *api.Config {
 	file := clientcmd.RecommendedHomeFile + "." + ContextToEnv(context)
 	conf, err := clientcmd.LoadFromFile(file)
@@ -140,4 +153,28 @@ func Join(items []string, prefix, suffix string) string {
 		joined += prefix + item + suffix
 	}
 	return joined
+}
+
+// WriteToken writes token to ~/.kube/kubectl-login/${env}/token.jwt
+func WriteToken(token string, context string) error {
+	dir := filepath.Join(configDir, ContextToEnv(context))
+	err := os.MkdirAll(dir, os.ModePerm)
+	if err != nil {
+		return err
+	}
+	err = ioutil.WriteFile(filepath.Join(dir, "token.jwt"), []byte(token), 0644)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// ReadToken returns token or empty string if missing or failure to read it (likely due to it not being written yet)
+func ReadToken(context string) string {
+	dir := filepath.Join(configDir, ContextToEnv(context))
+	bytes, err := ioutil.ReadFile(filepath.Join(dir, "token.jwt"))
+	if err != nil {
+		return ""
+	}
+	return string(bytes)
 }
