@@ -1,6 +1,6 @@
 module github.com/Bisnode/kubectl-login
 
-go 1.13
+go 1.14
 
 replace k8s.io/apimachinery => k8s.io/apimachinery v0.0.0-20181126123746-eddba98df674 // indirect
 
