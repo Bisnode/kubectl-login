@@ -111,7 +111,7 @@ func parseArgs(clientCfg *api.Config) (forceLogin bool, execCredentialMode bool,
 	}
 
 	if flag.NArg() > 0 {
-		_, _ = fmt.Fprint(os.Stderr, fmt.Sprintf("Unrecognized parameter(s): %v\n", flag.Args()))
+		_, _ = fmt.Fprintf(os.Stderr, "Unrecognized parameter(s): %v\n", flag.Args())
 		flag.Usage()
 		os.Exit(1)
 	}
@@ -135,6 +135,12 @@ func currentToken(clientCfg *api.Config) string {
 func main() {
 	quitChan := make(chan struct{})
 	sigChan := make(chan os.Signal, 1)
+	timeoutChan := make(chan bool, 1)
+	go func() {
+		time.Sleep(10 * time.Minute)
+		timeoutChan <- true
+	}()
+
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 
 	cluster := api.NewCluster()
@@ -181,8 +187,7 @@ func main() {
 	authzEndpointURL, _ := url.Parse(issuer.AuthorizeEndpoint)
 	_, err = net.LookupIP(authzEndpointURL.Host)
 	if err != nil {
-		fmt.Println(fmt.Sprintf("Could not resolve %v. Are you on the office network / VPN?", authzEndpointURL.Host))
-		os.Exit(1)
+		log.Fatalf("Could not resolve %v. Are you on the office network / VPN?", authzEndpointURL.Host)
 	}
 
 	nonce := util.RandomString(12)
@@ -239,7 +244,10 @@ func main() {
 			return
 		case <-sigChan:
 			close(quitChan)
+		case <-timeoutChan:
+			log.Fatal("kubetcl-login aborting after idling for 10 minutes")
 		default:
+			time.Sleep(100 * time.Millisecond)
 		}
 	}
 }

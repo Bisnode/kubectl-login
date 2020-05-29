@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/Bisnode/kubectl-login/util"
@@ -90,8 +91,8 @@ func (h *IDTokenWebhookHandler) ServeHTTP(w http.ResponseWriter, r *http.Request
 	}
 
 	if !h.ExecCredentialMode {
-		fmt.Println(fmt.Sprintf(
-			"Authenticated for context %v. Token valid until %v.", h.ClientCfg.CurrentContext, exp))
+		_, _ = fmt.Fprintf(os.Stdout,
+			"Authenticated for context %v. Token valid until %v.\n", h.ClientCfg.CurrentContext, exp)
 	}
 
 	// Return control to shell at this point
