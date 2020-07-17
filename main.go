@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/base64"
 	"flag"
 	"fmt"
 	"log"
@@ -43,7 +44,19 @@ func initKubeConfContext(env string, clientCfg *api.Config, setCurrentCtx bool) 
 	}
 	ctx := fmt.Sprintf("tr.k8s.%v.%v.bisnode.net", env, account)
 
-	clusterConf := map[string]*api.Cluster{ctx: {Server: "https://api." + ctx, InsecureSkipTLSVerify: true}}
+	clusterConf := map[string]*api.Cluster{ctx: {Server: "https://api." + ctx}}
+
+	caCert := util.ClusterCaCert(ctx)
+	if caCert == "unknown" {
+		fmt.Printf("Unkown cluster %v, will skip TLS verification", ctx)
+		clusterConf[ctx].InsecureSkipTLSVerify = true
+	} else {
+		bytes, err := base64.StdEncoding.DecodeString(caCert)
+		if err != nil {
+			log.Fatalf("Failed to decode CA certificate for cluster %v", ctx)
+		}
+		clusterConf[ctx].CertificateAuthorityData = bytes
+	}
 
 	userConf := &api.AuthInfo{
 		Exec: &api.ExecConfig{
