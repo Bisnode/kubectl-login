@@ -1,7 +1,7 @@
 package util
 
 import (
-	"fmt"
+	"log"
 	"reflect"
 	"testing"
 
@@ -53,7 +53,7 @@ func issueTestToken(user string, groups []string) string {
 
 	tokenEncoded, err := token.SignedString([]byte(signature))
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 
 	return tokenEncoded

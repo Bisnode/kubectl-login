@@ -138,7 +138,7 @@ func startServer(server *http.Server) {
 
 func currentToken(clientCfg *api.Config) string {
 	if clientCfg.CurrentContext == "" {
-		fmt.Println("No current-context set - run 'kubectl login --init' to initialize context")
+		log.Println("No current-context set - run 'kubectl login --init' to initialize context")
 		os.Exit(1)
 	}
 	// Note that absence of a token is not an error here but an empty string is returned
@@ -212,7 +212,7 @@ func main() {
 		"client_id":     "kubectl-login",
 		"response_type": "id_token",
 		"response_mode": "form_post",
-		"scope":         "profile openid",
+		"scope":         "openid email tbac",
 		"nonce":         nonce,
 	}
 	authorizeRequestURL := issuer.AuthorizeEndpoint + "?"

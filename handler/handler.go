@@ -87,7 +87,7 @@ func (h *IDTokenWebhookHandler) ServeHTTP(w http.ResponseWriter, r *http.Request
 
 	err = util.WriteToken(token.Raw, h.ClientCfg.CurrentContext)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 
 	if !h.ExecCredentialMode {
