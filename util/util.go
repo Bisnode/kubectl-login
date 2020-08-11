@@ -45,6 +45,11 @@ var (
 
 // ExtractTeams returns all teams from groups as found in ID token
 func ExtractTeams(claims *IdentityClaims) (teams []string) {
+	if claims.Groups == nil {
+		log.Print("Claim \"groups\" missing from ID token")
+		return make([]string, 0)
+	}
+
 	for _, g := range *claims.Groups {
 		group := strings.ToLower(g)
 		if strings.HasPrefix(group, "sec-tbac-team-") {
@@ -181,6 +186,7 @@ func ReadToken(context string) string {
 
 // ClusterCaCert provides the CA cert for the given cluster, or "unknown" if not in map of known clusters
 func ClusterCaCert(context string) string {
+	//goland:noinspection SpellCheckingInspection
 	clusterCaCerts := map[string]string{
 		"tr.k8s.dev.blue.bisnode.net": "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUMwekNDQWJ1Z0F3SUJBZ0lNRlQyUi9YRTd3S" +
 			"jRRaHRwM01BMEdDU3FHU0liM0RRRUJDd1VBTUJVeEV6QVIKQmdOVkJBTVRDbXQxWW1WeWJtVjBaWE13SGhjTk1UZ3dOak13TVRNMU9US" +
