@@ -212,7 +212,7 @@ func main() {
 		"client_id":     "kubectl-login",
 		"response_type": "id_token",
 		"response_mode": "form_post",
-		"scope":         "openid email tbac",
+		"scope":         "openid%20email%20tbac",
 		"nonce":         nonce,
 	}
 	authorizeRequestURL := issuer.AuthorizeEndpoint + "?"
@@ -230,7 +230,7 @@ func main() {
 		err = open.RunWith(authorizeRequestURL, preferredBrowser)
 	}
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Failed opening web browser: %v", err)
 	}
 
 	idTokenHandler := &handler.IDTokenWebhookHandler{
