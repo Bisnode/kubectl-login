@@ -23,7 +23,7 @@ import (
 	"k8s.io/client-go/tools/clientcmd/api"
 )
 
-const version = "1.2.0"
+const version = "1.2.1"
 
 const usageInstructions string = `Usage of kubectl login:
   --force

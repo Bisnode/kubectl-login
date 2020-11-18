@@ -7,15 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.x.x] - Unreleased
 ### Changed
 
+## [1.2.1] - 2020-11-18
+### Changed
+- URL encode spaces in scope in order for Mac OS Big Sur to recognize the authorization URL as a proper URL.
+
 ## [1.2.0] - 2020-08-11
 ### Changed
 - Add `tbac` and `email` scope to token server authorization request, which will result in an ID token containing only
-  claims (groups specifically) relevant to TBAC. This often cuts the returned token size in half or more. 
+  claims (groups specifically) relevant to TBAC. This often cuts the returned token size in half or more.
 - Will now verify certificates for any known Bisnode cluster.
 
 ## [1.1.1] - 2020-05-29
 ### Changed
-- kubectl-login will now exit after 10 minutes of idling. This in order to prevent the program from staying in the 
+- kubectl-login will now exit after 10 minutes of idling. This in order to prevent the program from staying in the
   background if left unattended.
 - Added a sleep in the main loop to avoid hogging the CPU while active.
 
