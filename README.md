@@ -61,7 +61,7 @@ to login again.
 
     git clone git@github.com:Bisnode/kubectl-login.git
     cd kubectl-login
-    export $GO111MODULE=auto # If not set already
+    export $GO111MODULE=auto # If not set already. For Windows: set GO111MODULE=auto
     go build
 
 The `kubectl-login` binary will now be in your current directory. Replace the one on your `$PATH` with the one you built
