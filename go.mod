@@ -5,7 +5,7 @@ go 1.14
 replace k8s.io/apimachinery => k8s.io/apimachinery v0.0.0-20181126123746-eddba98df674 // indirect
 
 require (
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/golang-jwt/jwt v3.2.0+incompatible
 	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/gogo/protobuf v1.3.1 // indirect
 	github.com/golang/protobuf v1.4.3 // indirect

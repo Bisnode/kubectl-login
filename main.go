@@ -17,7 +17,7 @@ import (
 
 	"github.com/Bisnode/kubectl-login/handler"
 	"github.com/Bisnode/kubectl-login/util"
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt"
 	"github.com/skratchdot/open-golang/open"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/clientcmd/api"
