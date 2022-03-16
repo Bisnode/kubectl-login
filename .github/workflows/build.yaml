@@ -67,3 +67,4 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./dist/darwin/amd64/kubectl-login
           asset_name: kubectl-login
+          asset_content_type: application/zip
