@@ -36,7 +36,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
           tag-prefix: 'v'
           dry-run: true
-        if: github.ref_name == 'feature'
+        if: github.ref_name == 'master'
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -45,8 +45,8 @@ jobs:
         with:
           tag_name: v${{ steps.tag_version.outputs.semantic-version }}
           release_name:  v${{ steps.tag_version.outputs.semantic-version }}
-        if: github.ref_name == 'feature'
-      - name: Upload Release Asset
+        if: github.ref_name == 'master'
+      - name: Upload Mac Release Asset
         id: upload-mac-os-release-asset
         uses: actions/upload-release-asset@v1
         env:
@@ -56,8 +56,8 @@ jobs:
           asset_path: ./dist/darwin/amd64/kubectl-login
           asset_name: kubectl-login-macos.zip
           asset_content_type: application/zip
-        if: github.ref_name == 'feature'
-      - name: Upload Release Asset
+        if: github.ref_name == 'master'
+      - name: Upload Linux Release Asset
         id: upload-linux-release-asset
         uses: actions/upload-release-asset@v1
         env:
@@ -67,8 +67,8 @@ jobs:
           asset_path: ./dist/linux/amd64/kubectl-login
           asset_name: kubectl-login-linux.zip
           asset_content_type: application/zip
-        if: github.ref_name == 'feature'
-      - name: Upload Release Asset
+        if: github.ref_name == 'master'
+      - name: Upload Windows Release Asset
         id: upload-release-asset
         uses: actions/upload-release-asset@v1
         env:
@@ -78,4 +78,4 @@ jobs:
           asset_path: ./dist/windows/amd64/kubectl-login.exe
           asset_name: kubectl-login-windows.zip
           asset_content_type: application/zip
-        if: github.ref_name == 'feature'
+        if: github.ref_name == 'master'
