@@ -46,11 +46,11 @@ jobs:
           path: dist/windows/amd64/kubectl-login.exe
       - name: Bump version and push tag
         id: tag_version
-        uses: Instrument/github-tag-action@v1.0
+        uses: anothrNick/github-tag-action@1.36.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH: ${{ github.base_ref }}
-          BUMP: minor
+          TAG_CONTEXT: branch
+          DEFAULT_BUMP: minor
       - name: Upload Release Asset
         id: upload-release-asset
         uses: actions/upload-release-asset@v1
