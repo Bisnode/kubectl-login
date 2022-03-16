@@ -46,11 +46,10 @@ jobs:
           path: dist/windows/amd64/kubectl-login.exe
       - name: Bump version and push tag
         id: tag_version
-        uses: anothrNick/github-tag-action@1.36.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG_CONTEXT: branch
-          DEFAULT_BUMP: minor
+        uses: SOLIDSoftworks/semver-tags@1.0.1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
+          tag-prefix: 'v'
       - name: Upload Release Asset
         id: upload-release-asset
         uses: actions/upload-release-asset@v1
