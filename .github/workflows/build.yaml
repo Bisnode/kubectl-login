@@ -29,21 +29,6 @@ jobs:
         env:
           GOOS: windows
           GOARCH: amd64
-      - name: Upload kubectl-login Linux binary
-        uses: actions/upload-artifact@v1
-        with:
-          name: kubectl-login-linux
-          path: dist/linux/amd64/kubectl-login
-      - name: Upload kubectl-login Mac OS binary
-        uses: actions/upload-artifact@v1
-        with:
-          name: kubectl-login-macos
-          path: dist/darwin/amd64/kubectl-login
-      - name: Upload kubectl-login Windows binary
-        uses: actions/upload-artifact@v1
-        with:
-          name: kubectl-login-windows
-          path: dist/windows/amd64/kubectl-login.exe
       - name: Get next version
         id: tag_version
         uses: SOLIDSoftworks/semver-tags@1.0.1
