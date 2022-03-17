@@ -29,18 +29,53 @@ jobs:
         env:
           GOOS: windows
           GOARCH: amd64
-      - name: Upload kubectl-login Linux binary
-        uses: actions/upload-artifact@v1
+      - name: Get Next Tag
+        id: tag_version
+        uses: SOLIDSoftworks/semver-tags@1.0.1
         with:
-          name: kubectl-login-linux
-          path: dist/linux/amd64/kubectl-login
-      - name: Upload kubectl-login Mac OS binary
-        uses: actions/upload-artifact@v1
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
+          tag-prefix: 'v'
+          dry-run: true
+        if: github.ref_name == 'master'
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: kubectl-login-macos
-          path: dist/darwin/amd64/kubectl-login
-      - name: Upload kubectl-login Windows binary
-        uses: actions/upload-artifact@v1
+          tag_name: v${{ steps.tag_version.outputs.semantic-version }}
+          release_name:  v${{ steps.tag_version.outputs.semantic-version }}
+        if: github.ref_name == 'master'
+      - name: Upload Mac Release Asset
+        id: upload-mac-os-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: kubectl-login-windows
-          path: dist/windows/amd64/kubectl-login.exe
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/darwin/amd64/kubectl-login
+          asset_name: kubectl-login-macos.zip
+          asset_content_type: application/zip
+        if: github.ref_name == 'master'
+      - name: Upload Linux Release Asset
+        id: upload-linux-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/linux/amd64/kubectl-login
+          asset_name: kubectl-login-linux.zip
+          asset_content_type: application/zip
+        if: github.ref_name == 'master'
+      - name: Upload Windows Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/windows/amd64/kubectl-login.exe
+          asset_name: kubectl-login-windows.zip
+          asset_content_type: application/zip
+        if: github.ref_name == 'master'
