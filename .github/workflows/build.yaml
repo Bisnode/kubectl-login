@@ -15,20 +15,27 @@ jobs:
       - name: Run tests
         run: go test ./...
       - name: Build Linux binary
-        run: go build -o dist/linux/amd64/kubectl-login
+        run: |
+          go build -o dist/linux/amd64/kubectl-login
+          zip -j kubectl-login-linux dist/linux/amd64/kubectl-login
         env:
           GOOS: linux
           GOARCH: amd64
       - name: Build Mac OS binary
-        run: go build -o dist/darwin/amd64/kubectl-login
+        run: |
+          go build -o dist/darwin/amd64/kubectl-login
+          zip -j kubectl-login-macos dist/darwin/amd64/kubectl-login
         env:
           GOOS: darwin
           GOARCH: amd64
       - name: Build Windows binary
-        run: go build -o dist/windows/amd64/kubectl-login.exe
+        run: |
+          go build -o dist/windows/amd64/kubectl-login.exe
+          zip -j kubectl-login-windows dist/windows/amd64/kubectl-login.exe
         env:
           GOOS: windows
           GOARCH: amd64
+        if: github.ref_name == 'master'
       - name: Get Next Tag
         id: tag_version
         uses: SOLIDSoftworks/semver-tags@1.0.1
@@ -53,7 +60,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/darwin/amd64/kubectl-login
+          asset_path: ./kubectl-login-macos.zip
           asset_name: kubectl-login-macos.zip
           asset_content_type: application/zip
         if: github.ref_name == 'master'
@@ -64,7 +71,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/linux/amd64/kubectl-login
+          asset_path: ./kubectl-login-linux.zip
           asset_name: kubectl-login-linux.zip
           asset_content_type: application/zip
         if: github.ref_name == 'master'
@@ -75,7 +82,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/windows/amd64/kubectl-login.exe
+          asset_path: ./kubectl-login-windows.zip
           asset_name: kubectl-login-windows.zip
           asset_content_type: application/zip
         if: github.ref_name == 'master'
