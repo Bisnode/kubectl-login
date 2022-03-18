@@ -8,6 +8,19 @@ jobs:
     steps:
       - name: Checkout source
         uses: actions/checkout@master
+      - name: Get Next Tag
+        id: tag_version
+        uses: SOLIDSoftworks/semver-tags@1.0.1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
+          tag-prefix: 'v'
+          dry-run: true
+      - name: Update kubectl-login Version
+        env:
+          KLOGIN_VERSION: ${{ steps.tag_version.outputs.semantic-version }}
+        run: |
+          CURRENT_VERSION=$(cat main.go | grep 'const version' | tr -d \" | awk -F ' ' '{print $NF}')
+          sed -i "s/$CURRENT_VERSION/$KLOGIN_VERSION/" main.go
       - name: Setup Go
         uses: actions/setup-go@v1
         with:
@@ -35,14 +48,6 @@ jobs:
         env:
           GOOS: windows
           GOARCH: amd64
-        if: github.ref_name == 'master'
-      - name: Get Next Tag
-        id: tag_version
-        uses: SOLIDSoftworks/semver-tags@1.0.1
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
-          tag-prefix: 'v'
-          dry-run: true
         if: github.ref_name == 'master'
       - name: Create Release
         id: create_release
