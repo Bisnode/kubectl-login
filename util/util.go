@@ -98,6 +98,10 @@ func RandomString(length int) string {
 // ClusterIssuer provides relevant issuer details given a context
 func ClusterIssuer(context string) Issuer {
 	clusterIssuers := map[string]Issuer{
+		"tr.k8s.lab.blue.bisnode.net": {
+			Name:              "https://dev-login.bisnode.com",
+			AuthorizeEndpoint: "https://dev-login.bisnode.com/as/authorization.oauth2",
+		},
 		"tr.k8s.dev.blue.bisnode.net": {
 			Name:              "https://dev-login.bisnode.com",
 			AuthorizeEndpoint: "https://dev-login.bisnode.com/as/authorization.oauth2",
@@ -188,6 +192,20 @@ func ReadToken(context string) string {
 func ClusterCaCert(context string) string {
 	//goland:noinspection SpellCheckingInspection
 	clusterCaCerts := map[string]string{
+		"tr.k8s.lab.blue.bisnode.net": "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUMwekNDQWJ1Z0F3SUJBZ0lNRjR6RmdFcFdQV" +
+			"WlwVlhjck1BMEdDU3FHU0liM0RRRUJDd1VBTUJVeEV6QVIKQmdOVkJBTVRDbXQxWW1WeWJtVjBaWE13SGhjTk1qTXhNREE0TVRRek1UV" +
+			"TBXaGNOTXpNeE1EQTNNVFF6TVRVMApXakFWTVJNd0VRWURWUVFERXdwcmRXSmxjbTVsZEdWek1JSUJJakFOQmdrcWhraUc5dzBCQVFFR" +
+			"kFBT0NBUThBCk1JSUJDZ0tDQVFFQXJ0MkhJTURySFo1elBzSUd4L0ZvcEtVQjh4ZEhTQ2RiTkNwNWZOVWJoRFdld3ZuZGJ5TXgKMko3K" +
+			"0ovaWJXcU5zQUllK29ETk85OFNGdlJzejVOTEdKbkVjTkp4d2hPSTBOaTV1a2JLY29sZ2ZKOHBHeTlwagphdEcxTkM2UGpoOXFzdG91W" +
+			"jlaOVk3SllOZUlmTWpuRWVNOW5JNmcvRjgxb20wTTk3RHNkYU13Nkk3aGhNVEVuCnZHa0txVTB4RXpEYTVXeDZabDY0RENPWlYvbkNnR" +
+			"WRHOERHMEZmeUVXcjhWZ2tKbDVqSGZBU1Y2QXZQbTNQeW4KRUZZV1BsZVJ3Q0VnTE8yMkNTWWEyTUNzU1owVWh3OU9nTjdwcEdnU1J1S" +
+			"XBoUE9KeFhQWE1DQ0FEemhGWkNFTwpGcklYREF1bHRpY3pQKzBIWHVUd2ZGNnhWUHpTRExoMDhRSURBUUFCb3lNd0lUQU9CZ05WSFE4Q" +
+			"kFmOEVCQU1DCkFRWXdEd1lEVlIwVEFRSC9CQVV3QXdFQi96QU5CZ2txaGtpRzl3MEJBUXNGQUFPQ0FRRUFtZFhhTkYxN2pRR3MKZFlWL" +
+			"1IydnRaRXhoanVVbmVCY0M1dWJaMVZwNzV4MkdwNDY3V3ZQSWlGSG54c2twN3M1MG1Ca3BESkhMbFczNApBQXpDUG1hV2U3MVduV3BHU" +
+			"U9JT0ZCcXpSWUVvcnIzVndSQm9CcnNzZVFPWk1kZVNuWEMrVjlFTFRRQTBGN1NCCndyN0ZnTzR0MllWbGI3N05aMTQvc0REeWkxTEh2S" +
+			"m9YNGc1dG9uMkJkNVRNTTdVdWtiTDY2ZS9KamRveUdjV3MKeDJNRjZDTzBuRG1PMWc5YUpXaDh6L1EwRzR2TyswZGI4UUd1KzlxT05BY" +
+			"2FhU3NWZEtaUTVEd0ZJV3MrbGtlNgpzbkVlTzd0T1ROOGRNSmtkV0w2WTE2ZkVGVWV1dTJHSk52NmNXajd6UkV5ZXduT1JpOHFpNWo5T" +
+			"UlzcW1xTTlMClVtS2cxckdxTHc9PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==",
 		"tr.k8s.dev.blue.bisnode.net": "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUMwekNDQWJ1Z0F3SUJBZ0lNRjFWN1BFL092R" +
 			"EpHNERrTE1BMEdDU3FHU0liM0RRRUJDd1VBTUJVeEV6QVIKQmdOVkJBTVRDbXQxWW1WeWJtVjBaWE13SGhjTk1qTXdOREV4TVRFek1qR" +
 			"TBXaGNOTXpNd05ERXdNVEV6TWpFMApXakFWTVJNd0VRWURWUVFERXdwcmRXSmxjbTVsZEdWek1JSUJJakFOQmdrcWhraUc5dzBCQVFFR" +
